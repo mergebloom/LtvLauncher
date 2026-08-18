@@ -1,0 +1,64 @@
+name: Build test APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - "android/**"
+      - "lib/**"
+      - "test/**"
+      - "drift_schemas/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - ".github/workflows/ci-debug-apk.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: "21"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.24.5"
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate sources
+        run: |
+          flutter pub run build_runner build --delete-conflicting-outputs
+          flutter pub run drift_dev schema generate drift_schemas/ test/generated_migrations/
+
+      - name: Test
+        run: flutter test
+
+      - name: Build 32-bit ARM debug APK
+        run: flutter build apk --debug --target-platform android-arm
+
+      - name: Record checksum
+        run: sha256sum build/app/outputs/flutter-apk/app-debug.apk | tee build/app/outputs/flutter-apk/app-debug.apk.sha256
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: LTvLauncher-armeabi-v7a-debug
+          path: |
+            build/app/outputs/flutter-apk/app-debug.apk
+            build/app/outputs/flutter-apk/app-debug.apk.sha256
+          if-no-files-found: error
+          retention-days: 14
