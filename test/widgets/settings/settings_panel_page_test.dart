@@ -107,6 +107,7 @@ void main() {
     when(appsService.launcherSections).thenReturn([]);
     when(appsService.applications).thenReturn([]);
     when(settingsService.appHighlightAnimationEnabled).thenReturn(true);
+    when(settingsService.accentColorHex).thenReturn("6750A4");
     PackageInfoPlatform.instance = _MockPackageInfoPlatform();
 
     await _pumpWidgetWithProviders(tester, settingsService, appsService);

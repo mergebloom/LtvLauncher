@@ -24,11 +24,11 @@ void main() {
     when(mockChannel.checkNotificationListenerPermission())
         .thenAnswer((_) async => false);
     when(mockChannel.requestNotificationListenerPermission())
-        .thenAnswer((_) async => null);
+        .thenAnswer((_) async => false);
     when(mockChannel.checkOverlayPermission())
         .thenAnswer((_) async => false);
     when(mockChannel.requestOverlayPermission())
-        .thenAnswer((_) async => null);
+        .thenAnswer((_) async => false);
     when(mockChannel.getActiveNotifications())
         .thenAnswer((_) async => []);
     when(mockChannel.addNotificationsChangedListener(any))
